@@ -6,16 +6,22 @@ program example_progress_bar
     type(progress_bar) :: bar
     integer :: i
 
-    do i = 1, 10
-        call sleep(1)
-        call bar%bar(i, 10)
-    end do
-    print *, ''
+    call bar%init()
 
     do i = 1, 10
         call sleep(1)
         call bar%bar(i, 10)
-        print *, ''
+    end do
+    print *, ""
+
+    do i = 1, 10
+        call sleep(1)
+        call bar%bar(i, 10)
+
+#ifdef __GFORTRAN__
+        print *, ""
+#endif
+
     end do
 
 end program example_progress_bar

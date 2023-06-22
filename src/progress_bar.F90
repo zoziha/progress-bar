@@ -27,13 +27,16 @@ module progress_bar_module
 contains
 
     !> Initialize progress bar
-    pure subroutine init(self, len_bar, marker)
+    subroutine init(self, len_bar, marker)
         class(progress_bar), intent(inout) :: self
         integer, intent(in), optional :: len_bar
         character(1), intent(in), optional :: marker(2)
 
         if (present(len_bar)) self%len_bar = len_bar - 2
         if (present(marker)) self%marker = marker
+#ifdef __INTEL_COMPILER
+        open (6, carriagecontrol='fortran')
+#endif
 
     end subroutine init
 
@@ -78,7 +81,11 @@ contains
         associate (eta => (max - value)/v, &
                    progress => real(value)/max)
             value_ = value
+#ifdef __INTEL_COMPILER
+            write (6, '("+",2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)') CR, self%progress(progress), &
+#else
             write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)', advance='no') CR, self%progress(progress), &
+#endif
                 self%alive(), value, '/', max, &
                 '[', nint(progress*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
         end associate
