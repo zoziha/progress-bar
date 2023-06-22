@@ -1,0 +1,24 @@
+name = "progress-bar"
+version = "1.0.0"
+license = "MIT"
+author = "ZUO Zhihua"
+maintainer = "zuo.zhihua@qq.com"
+copyright = "Copyright 2023, ZUO Zhihua"
+
+[build]
+auto-executables = true
+auto-tests = true
+auto-examples = true
+module-naming = false
+
+[dependencies]
+timer = { git="https://github.com/zoziha/timer" }
+
+[install]
+library = false
+
+[fortran]
+implicit-typing = false
+implicit-external = false
+source-form = "free"
+
