@@ -80,7 +80,7 @@ contains
             value_ = value
             write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)', advance='no') CR, self%progress(progress), &
                 self%alive(), value, '/', max, &
-                '[', int(progress*100), '%] (', int(v), '/s, eta: ', sec2hms(eta), ')'
+                '[', nint(progress*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
         end associate
 
         call tmr%tic()
