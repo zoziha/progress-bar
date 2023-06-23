@@ -7,7 +7,8 @@ A simple progress bar module that is typically used to display the time integrat
 
 ## Usage
 
-Only FPM is supported, other build systems can copy source files (`./src/progress_bar.F90`, [`timer/src/timer.F90`][1]) directly.
+Only FPM is supported, other build systems can copy source files (`./src/progress_bar.F90`, [`timer/src/timer.F90`][1]) directly,
+and `ifort` and `gfortran` compilers are tested.
 
 To use `progress-bar` within your `fpm` project, add the following lines to your `fpm.toml` file:
 
@@ -33,8 +34,6 @@ program example_progress_bar
     type(progress_bar) :: bar
     integer :: i
 
-    call bar%init()
-
     do i = 1, 10
         call sleep(1)
         call bar%bar(i, 10)
@@ -45,9 +44,7 @@ program example_progress_bar
         call sleep(1)
         call bar%bar(i, 10)
 
-#ifdef __GFORTRAN__
         print *, ""
-#endif
 
     end do
 

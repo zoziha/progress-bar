@@ -34,9 +34,6 @@ contains
 
         if (present(len_bar)) self%len_bar = len_bar - 2
         if (present(marker)) self%marker = marker
-#ifdef __INTEL_COMPILER
-        open (6, carriagecontrol='fortran')
-#endif
 
     end subroutine init
 
@@ -68,6 +65,7 @@ contains
     end function alive
 
     !> Print a progress bar
+    !> @note The format control character "\" is an `ifort` extension, the corresponding extension for `gfortran` is "$".
     subroutine bar(self, value, max)
         class(progress_bar), intent(inout) :: self
         integer, intent(in) :: value, max
@@ -82,7 +80,7 @@ contains
                    progress => real(value)/max)
             value_ = value
 #ifdef __INTEL_COMPILER
-            write (6, '("+",2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)') CR, self%progress(progress), &
+            write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a\)') CR, self%progress(progress), &
 #else
             write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)', advance='no') CR, self%progress(progress), &
 #endif
