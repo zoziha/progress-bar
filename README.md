@@ -36,21 +36,18 @@ program example_progress_bar
 
     do i = 1, 10
         call sleep(1)
-        call bar%bar(i, 10)
+        call bar%bar(i, 10, advance=.true.)
     end do
-    print *, ""
+    call bar%bar(10, 10, .false.)
 
     do i = 1, 10
         call sleep(1)
-        call bar%bar(i, 10)
-
-        print *, ""
-
+        call bar%bar(i, 10, .false.)
     end do
 
 end program example_progress_bar
-!> [***********************] / 10/10 [100%] (1/s, eta: 00:00:00)
-!> [**---------------------] - 1/10 [10%] (-9/s, eta: 00:00:**)
+!> [***********************] / 10/10 [100%] (0/s, eta: 00:00:00)
+!> [**---------------------] - 1/10 [10%] (0/s, eta: 00:00:00)
 !> [*****------------------] \ 2/10 [20%] (1/s, eta: 00:00:08)
 !> [*******----------------] | 3/10 [30%] (1/s, eta: 00:00:07)
 !> [*********--------------] / 4/10 [40%] (1/s, eta: 00:00:06)

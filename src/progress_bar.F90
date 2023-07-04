@@ -66,26 +66,46 @@ contains
 
     !> Print a progress bar
     !> @note The format control character "\" is an `ifort` extension, the corresponding extension for `gfortran` is "$".
-    subroutine bar(self, value, max)
+    subroutine bar(self, value, maxval, advance)
         class(progress_bar), intent(inout) :: self
-        integer, intent(in) :: value, max
-        type(timer), save :: tmr  !! 计时器
-        integer, save :: value_  !! 上一次的值
-        real(rk) :: dt, v
+        integer, intent(in) :: value, maxval
+        logical, intent(in), optional :: advance
+        type(timer), save :: tmr  !! timer
+        integer, save :: value_  !! last value
+        real(rk) :: dt, v, eta
+        logical :: advance_
+
+        if (present(advance)) then
+            advance_ = advance
+        else
+            advance_ = .true.
+        end if
 
         dt = tmr%toc()
-        v = (value - value_)/dt
 
-        associate (eta => (max - value)/v, &
-                   progress => real(value)/max)
+        if (maxval == value_) then
+            v = 0.0_rk
+            eta = 0.0_rk
+        else
+            v = (value - value_)/dt
+            eta = (maxval - value)/v
+        end if
+
+        associate (progress => real(value)/maxval)
             value_ = value
+            if (advance_) then
 #ifdef __INTEL_COMPILER
-            write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a\)') CR, self%progress(progress), &
+                write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a\)') CR, self%progress(progress), &
 #else
-            write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)', advance='no') CR, self%progress(progress), &
+                    write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)', advance='no') CR, self%progress(progress), &
 #endif
-                self%alive(), value, '/', max, &
-                '[', nint(progress*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
+                    self%alive(), value, '/', maxval, &
+                    '[', nint(progress*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
+            else
+                write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)') CR, self%progress(progress), &
+                    self%alive(), value, '/', maxval, &
+                    '[', nint(progress*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
+            end if
         end associate
 
         call tmr%tic()
