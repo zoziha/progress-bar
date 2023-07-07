@@ -13,67 +13,36 @@ module progress_bar_module
     private
     public :: progress_bar, CR
 
-    !> Progress bar
-    type progress_bar
-        private
-        integer :: len_bar = 23
-        character(1) :: marker(2) = ["*", "-"]
-        integer :: count = 1
-    contains
-        procedure :: init, bar
-        procedure, private :: progress, alive
-    end type progress_bar
+    integer, parameter :: maxlen = 132, barlen = 20
+    character(1), parameter :: marker(2) = ["*", "-"]
 
 contains
 
-    !> Initialize progress bar
-    subroutine init(self, len_bar, marker)
-        class(progress_bar), intent(inout) :: self
-        integer, intent(in), optional :: len_bar
-        character(1), intent(in), optional :: marker(2)
-
-        if (present(len_bar)) self%len_bar = len_bar - 2
-        if (present(marker)) self%marker = marker
-
-    end subroutine init
-
     !> Get a progress bar
-    pure function progress(self, p) result(bar)
-        class(progress_bar), intent(in) :: self
+    pure function progress(p) result(bar)
         real, intent(in) :: p
         character(:), allocatable :: bar
         real :: progress_
 
         progress_ = min(1.0, max(0.0, p))
-        associate (pad => nint(progress_*self%len_bar))
-            allocate (bar, source="["//repeat(self%marker(1), pad)// &
-                      repeat(self%marker(2), self%len_bar - pad)//"]")
+        associate (pad => nint(progress_*barlen))
+            allocate (bar, source="["//repeat(marker(1), pad)// &
+                      repeat(marker(2), barlen - pad)//"]")
         end associate
 
     end function progress
 
-    !> Get a alive bar
-    function alive(self) result(bar)
-        class(progress_bar), intent(inout) :: self
-        character(1) :: bar
-        character(*), parameter :: marker = "|/-\"
-
-        if (self%count == 5) self%count = 1
-        bar(1:1) = marker(self%count:self%count)
-        self%count = self%count + 1
-
-    end function alive
-
     !> Print a progress bar
     !> @note The format control character "\" is an `ifort` extension, the corresponding extension for `gfortran` is "$".
-    subroutine bar(self, value, maxval, advance)
-        class(progress_bar), intent(inout) :: self
+    subroutine progress_bar(value, maxval, advance)
         integer, intent(in) :: value, maxval
         logical, intent(in), optional :: advance
         type(timer), save :: tmr  !! timer
-        integer, save :: value_  !! last value
+        integer, save :: value_ = 0 !! last value
+        integer, save :: textlen = 0  !! length of text
         real(rk) :: dt, v, eta
         logical :: advance_
+        character(maxlen) :: text
 
         if (present(advance)) then
             advance_ = advance
@@ -83,33 +52,51 @@ contains
 
         dt = tmr%toc()
 
-        if (maxval == value_) then
-            v = 0.0_rk
+        if (maxval <= value) then
             eta = 0.0_rk
+            if (.not.advance_) then
+                if(value_ == value) then
+                    v = 0.0_rk
+                    value_ = 0
+                else
+                    v = (value - value_)/dt
+                    value_ = value
+                end if
+            else
+                v = (value - value_)/dt
+                value_ = value
+            end if
         else
             v = (value - value_)/dt
             eta = (maxval - value)/v
+            value_ = value
         end if
 
-        associate (progress => real(value)/maxval)
-            value_ = value
+        v = max(v, 0.0_rk)
+        eta = max(eta, 0.0_rk)
+
+        associate (p => real(value)/maxval)
+
+            write (text, '(2a,1x,i0,a,i0,1x,a,i0,a,i0,3a)') CR, progress(p), &
+                value, '/', maxval, '[', nint(p*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
+
             if (advance_) then
 #ifdef __INTEL_COMPILER
-                write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a\)') CR, self%progress(progress), &
+                write (*, '(2a\)') &
 #else
-                    write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)', advance='no') CR, self%progress(progress), &
+                write (*, '(2a)', advance='no') &
 #endif
-                    self%alive(), value, '/', maxval, &
-                    '[', nint(progress*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
+                    trim(text), repeat(' ', max(textlen - len_trim(text), 0))
+                textlen = max(len_trim(text), textlen)
             else
-                write (*, '(2a,1x,a,1x,i0,a,i0,1x,a,i0,a,i0,3a)') CR, self%progress(progress), &
-                    self%alive(), value, '/', maxval, &
-                    '[', nint(progress*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
+                write (*, '(2a)') trim(text), repeat(' ', max(textlen - len_trim(text), 0))
+                textlen = 0
             end if
+
         end associate
 
         call tmr%tic()
 
-    end subroutine bar
+    end subroutine progress_bar
 
 end module progress_bar_module

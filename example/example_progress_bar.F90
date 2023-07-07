@@ -3,18 +3,35 @@ program example_progress_bar
     use progress_bar_module, only: progress_bar
     implicit none
 
-    type(progress_bar) :: bar
     integer :: i
 
     do i = 1, 10
         call sleep(1)
-        call bar%bar(i, 10, advance=.true.)
+        call progress_bar(i*100, 500, advance=.true.)
     end do
-    call bar%bar(10, 10, .false.)
+    call progress_bar(1000, 500, .false.)
 
     do i = 1, 10
         call sleep(1)
-        call bar%bar(i, 10, .false.)
+        call progress_bar(i*50, 500, .true.)
+    end do
+    print *, ""
+
+    do i = 1, 10
+        call sleep(1)
+        call progress_bar(i*100, 500, .false.)
     end do
 
 end program example_progress_bar
+!> [********************] 1000/500 [200%] (0/s, eta: 00:00:00)  
+!> [********************] 500/500 [100%] (49/s, eta: 00:00:00) 
+!> [****----------------] 100/500 [20%] (0/s, eta: 00:00:00)  
+!> [********------------] 200/500 [40%] (98/s, eta: 00:00:03)
+!> [************--------] 300/500 [60%] (99/s, eta: 00:00:02)
+!> [****************----] 400/500 [80%] (98/s, eta: 00:00:01)
+!> [********************] 500/500 [100%] (100/s, eta: 00:00:00)
+!> [********************] 600/500 [120%] (98/s, eta: 00:00:00)
+!> [********************] 700/500 [140%] (99/s, eta: 00:00:00)
+!> [********************] 800/500 [160%] (98/s, eta: 00:00:00)
+!> [********************] 900/500 [180%] (98/s, eta: 00:00:00)
+!> [********************] 1000/500 [200%] (100/s, eta: 00:00:00)
