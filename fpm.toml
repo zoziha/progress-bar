@@ -1,5 +1,5 @@
 name = "progress-bar"
-version = "1.2.0"
+version = "1.2.1"
 license = "MIT"
 author = "ZUO Zhihua"
 maintainer = "zuo.zhihua@qq.com"
@@ -12,7 +12,7 @@ auto-examples = true
 module-naming = false
 
 [dependencies]
-timer = { git="https://github.com/zoziha/timer" }
+timer = { git = "https://github.com/zoziha/timer" }
 
 [install]
 library = false
@@ -21,4 +21,3 @@ library = false
 implicit-typing = false
 implicit-external = false
 source-form = "free"
-

@@ -47,14 +47,14 @@ contains
         if (present(advance)) then
             advance_ = advance
         else
-            advance_ = .true.
+            advance_ = .false.
         end if
 
         dt = tmr%toc()
 
         if (maxval <= value) then
             eta = 0.0_rk
-            if (.not.advance_) then
+            if (advance_) then
                 if(value_ == value) then
                     v = 0.0_rk
                     value_ = 0
@@ -81,6 +81,9 @@ contains
                 value, '/', maxval, '[', nint(p*100), '%] (', nint(v), '/s, eta: ', sec2hms(eta), ')'
 
             if (advance_) then
+                write (*, '(2a)') trim(text), repeat(' ', max(textlen - len_trim(text), 0))
+                textlen = 0
+            else
 #ifdef __INTEL_COMPILER
                 write (*, '(2a\)') &
 #else
@@ -88,9 +91,6 @@ contains
 #endif
                     trim(text), repeat(' ', max(textlen - len_trim(text), 0))
                 textlen = max(len_trim(text), textlen)
-            else
-                write (*, '(2a)') trim(text), repeat(' ', max(textlen - len_trim(text), 0))
-                textlen = 0
             end if
 
         end associate

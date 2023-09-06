@@ -7,19 +7,19 @@ program example_progress_bar
 
     do i = 1, 10
         call sleep(1)
-        call progress_bar(i*100, 500, advance=.true.)
+        call progress_bar(i*100, 500, advance=.false.)
     end do
-    call progress_bar(1000, 500, .false.)
+    call progress_bar(1000, 500, .true.)
 
     do i = 1, 10
         call sleep(1)
-        call progress_bar(i*50, 500, .true.)
+        call progress_bar(i*50, 500, .false.)
     end do
     print *, ""
 
     do i = 1, 10
         call sleep(1)
-        call progress_bar(i*100, 500, .false.)
+        call progress_bar(i*100, 500, .true.)
     end do
 
 end program example_progress_bar
