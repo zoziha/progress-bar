@@ -7,7 +7,7 @@ module progress_bar_module
     use, intrinsic :: iso_fortran_env, only: rk => real32
 #endif
     use, intrinsic :: iso_c_binding, only: CR => c_carriage_return
-    use timer_module, only: timer, sec2hms
+    use timer_module, only: clock_timer_type, sec2hms
     implicit none
 
     private
@@ -37,7 +37,7 @@ contains
     subroutine progress_bar(value, maxval, advance)
         integer, intent(in) :: value, maxval
         logical, intent(in), optional :: advance
-        type(timer), save :: tmr  !! timer
+        type(clock_timer_type), save :: tmr  !! timer
         integer, save :: value_ = 0 !! last value
         integer, save :: textlen = 0  !! length of text
         real(rk) :: dt, v, eta

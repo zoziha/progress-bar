@@ -12,7 +12,7 @@ auto-examples = true
 module-naming = false
 
 [dependencies]
-timer = { git = "https://github.com/zoziha/timer" }
+timer = { git = "https://github.com/zoziha/timer", rev = "v2.0.0" }
 
 [install]
 library = false
